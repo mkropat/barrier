@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Maintainer: Michael Kropat <mail@michael.kropat.name>
+
+# A client implementation for barrier-server.js. See the latter’s documentation
+# for full details.
+
+BARRIER_URL=${1:-$BARRIER_URL}
+[[ -n "$BARRIER_URL" ]] || { echo "Error: expected URL of barrier server as first argument." >&2; exit 1; }
+
+BARRIER_ID=${BARRIER_ID:-`hostname --fqdn`}
+
+hash curl 2>/dev/null && \
+exec curl \
+	--data "id=$BARRIER_ID" \
+	--fail \
+	--max-time 0 \
+	--output /dev/null \
+	--silent \
+	--show-error \
+	"$BARRIER_URL"
+
+hash wget 2>/dev/null && \
+exec wget \
+	--output-document=/dev/null \
+	--post-data="id=$BARRIER_ID" \
+	--quiet \
+	"$BARRIER_URL"
+
+echo "Error: could not locate either curl(1) or wget(1)." >&2
+exit 1
